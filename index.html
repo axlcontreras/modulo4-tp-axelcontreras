@@ -18,33 +18,60 @@
             <!-- Mostrar precios de los token A/B-->
             <p id="tokenAPrice" style="display: none;" class="text-center text-xl text-gray-800 mt-6">Precio del Token A: 0</p>
             <p id="tokenBPrice" style="display: none;" class="text-center text-xl text-gray-800 mt-6">Precio del Token B: 0</p>
-    
-            <!-- Formulario para hacer SWAP -->
-    
-            <div id="sendETHFields" style="display:none;" class="bg-white p-6 rounded-lg shadow-md mt-6">
-              <h2 class="text-2xl font-semibold text-gray-800 mb-4">Enviar ETH</h2>
-              <label for="ethRecipientAddress" class="block text-gray-700">Dirección del destinatario:</label>
-              <input type="text" id="ethRecipientAddress" placeholder="Dirección Ethereum" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            
+            <!-- Formularios para hacer SWAP -->
+            <!-- Formulario para hacer SWAP A for B -->
+            <div id="swapAforB" style="display:none;" class="bg-white p-6 rounded-lg shadow-md mt-6">
+              <h2 class="text-2xl font-semibold text-gray-800 mb-4">SWAP A FOR B</h2>
+
+              <label for="TKAAmount" class="block text-gray-700 mt-4">Monto (Token A):</label>
+              <input type="number" id="TKAAmount" placeholder="Monto de Token A" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+              <label for="amountB" class="block text-gray-700 mt-4">Recibirá (Token B):</label>
+              <input type="number" id="amountB" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
               
-              <label for="ethAmount" class="block text-gray-700 mt-4">Monto (ETH):</label>
-              <input type="number" id="ethAmount" placeholder="Monto en ETH" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              
-              <button id="btnSendETH" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Enviar ETH</button>
+              <button id="btnSwapAforB" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">SWAP</button>
             </div> 
 
-            <div id="sendERC20Fields" style="display:none;" class="bg-white p-6 rounded-lg shadow-md mt-6">
-              <h2 class="text-2xl font-semibold text-gray-800 mb-4">Enviar Token ERC20</h2>
-              <label for="recipientAddress" class="block text-gray-700">Dirección del destinatario:</label>
-              <input type="text" id="recipientAddress" placeholder="Dirección Ethereum" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- Formulario para hacer SWAP B for A -->
+            <div id="swapBforA" style="display:none;" class="bg-white p-6 rounded-lg shadow-md mt-6">
+              <h2 class="text-2xl font-semibold text-gray-800 mb-4">SWAP B FOR A</h2>
+
+              <label for="TKBAmount" class="block text-gray-700 mt-4">Monto (Token B):</label>
+              <input type="number" id="TKBAmount" placeholder="Monto de Token B" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+              <label for="amountA" class="block text-gray-700 mt-4">Recibirá (Token A):</label>
+              <input type="number" id="amountA" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
               
-              <label for="tokenAmount" class="block text-gray-700 mt-4">Monto (Token):</label>
-              <input type="number" id="tokenAmount" placeholder="Monto en Token" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <button id="btnSwapBforA" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">SWAP</button>
+            </div> 
+
+            
+            <!-- Formularios para agregar liquidez -->
+            <!-- Formulario para agregar liquidez A-->
+            <div id="addLiquidityTKA" style="display:none;" class="bg-white p-6 rounded-lg shadow-md mt-6">
+              <h2 class="text-2xl font-semibold text-gray-800 mb-4">Agregar Liquidez</h2>
+
+              <label for="TKAAmount" class="block text-gray-700 mt-4">Monto (Token A):</label>
+              <input type="number" id="TKAAmount" placeholder="Monto de Token A" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
               
-              <button id="btnSendERC20" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Enviar Token</button>
-            </div>
+              <button id="btnAddTKA" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Agregar Liquidez</button>
+            </div> 
+
+            <!-- Formulario para agregar liquidez B-->
+            <div id="addLiquidityTKB" style="display:none;" class="bg-white p-6 rounded-lg shadow-md mt-6">
+              <h2 class="text-2xl font-semibold text-gray-800 mb-4">Agregar Liquidez</h2>
+
+              <label for="TKBAmount" class="block text-gray-700 mt-4">Monto (Token B):</label>
+              <input type="number" id="TKBAmount" placeholder="Monto de Token B" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              
+              <button id="btnAddTKB" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Agregar Liquidez</button>
+            </div> 
+
+
     
-       
-        </div>
+
 
         <script type="module">
           import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js";
@@ -309,11 +336,13 @@
               await window.ethereum.request({ method: 'eth_requestAccounts' });
               provider = new ethers.BrowserProvider(window.ethereum);
               signer = await provider.getSigner();
-
+              console.log(signer)
               address = await signer.getAddress();
-
+              console.log(address)
               const balance = await provider.getBalance(address)
+              console.log(balance)
               const formattedBalance = ethers.formatEther(balance);
+              console.log(formattedBalance)
 
               const abi = await loadTokenABI();
 
@@ -329,14 +358,13 @@
               document.getElementById('msg_connect').style.display = 'none';
 
               document.getElementById('status').innerText = `Estado: Conectado a la cuenta ${address}`;
-              document.getElementById('TokenAPrice').style.display = 'block';
-              document.getElementById('TokenBPrice').style.display = 'block';
-              document.getElementById('ethBalance').style.display = 'block';
-              document.getElementById('sendERC20Fields').style.display = 'block';
-              document.getElementById('sendETHFields').style.display = 'block';
-
-              document.getElementById('ethBalance').innerText = `Balance de Wallet: ${formattedBalance} ETH`;
-              document.getElementById('erc20Balance').innerText = `Balance del Token: ${formattedTokenBalance}`;
+              // document.getElementById('TokenAPrice').style.display = 'block';
+              // document.getElementById('TokenBPrice').style.display = 'block';
+              // document.getElementById('ethBalance').style.display = 'block';
+              document.getElementById("addLiquidityTKA").style.display = 'block';
+              document.getElementById("addLiquidityTKB").style.display = 'block';
+              document.getElementById("swapAforB").style.display = "block";
+              document.getElementById("swapBforA").style.display = "block";
             }
             else {
               console.error('Metamask not detected');
@@ -347,14 +375,34 @@
             provider = null;
             signer = null;
             address = null;
-
+            
+            document.getElementById("addLiquidityTKA").style.display = 'none';
+            document.getElementById("addLiquidityTKB").style.display = 'none';
+            document.getElementById("swapAforB").style.display = "none";
+            document.getElementById("swapBforA").style.display = "none";                          
             document.getElementById('status').innerText = "Estado: Desconectado";
             document.getElementById('btnConnect').style.display = 'inline';
             document.getElementById('btnDisconnect').style.display = 'none';   
-            document.getElementById('sendERC20Fields').style.display = 'none';
-            document.getElementById('sendETHFields').style.display = 'none';   
-            document.getElementById('TokenAPrice').style.display = 'none';
-            document.getElementById('TokenBPrice').style.display = 'none';                             
+            // document.getElementById('sendERC20Fields').style.display = 'none';
+            // document.getElementById('sendETHFields').style.display = 'none';   
+            // document.getElementById('TokenAPrice').style.display = 'none';
+            // document.getElementById('TokenBPrice').style.display = 'none';   
+          }
+
+          async function getTokenBalance(address) {
+              // Dirección del contrato 
+              const tokenAddress = TOKEN_A_ADDRESS; // Sustituir con la dirección del contrato del token
+
+              // Crea una instancia del contrato ERC-20
+              const abi = await loadTokenABI();
+
+              const tokenContract = new ethers.Contract(tokenAddress, abi, provider);
+
+              // Llamada a balanceOf
+              const balance = await tokenContract.balanceOf(address);
+
+              // Muestra el balance (en formato de tokens)
+              document.getElementById("balance").textContent = "Balance: " + ethers.formatUnits(balance, 18);
           }
 
           async function sendETH() {
