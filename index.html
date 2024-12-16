@@ -7,18 +7,19 @@
     </head>
     <body class="bg-gray-100 font-sans">
         <div class="container mx-auto p-6">
-            <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">Intro to Ethers</h1>
+            <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">Simple DEX</h1>
             <div class="text-center">
               <button id="btnConnect" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition">Conectar wallet</button>
+              <h6 id="msg_connect">Por favor conecte una wallet antes de comenzar</h6>
               <button id="btnDisconnect" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition mt-4" style="display:none;">Desconectar</button>
             </div>
             <p id="status" class="text-center text-gray-600 mt-4">Estado: Desconectado</p>
             
-            <!-- Mostrar balance del token ERC20 -->
-            <p id="erc20Balance" style="display: none;" class="text-center text-xl text-gray-800 mt-6">Balance del Token: 0</p>
-            <p id="ethBalance"  style="display: none;" class="text-center text-xl text-gray-800 mt-6">Balance de Wallet: 0 ETH</p>
+            <!-- Mostrar precios de los token A/B-->
+            <p id="tokenAPrice" style="display: none;" class="text-center text-xl text-gray-800 mt-6">Precio del Token A: 0</p>
+            <p id="tokenBPrice" style="display: none;" class="text-center text-xl text-gray-800 mt-6">Precio del Token B: 0</p>
     
-            <!-- Formulario para enviar ERC20 -->
+            <!-- Formulario para hacer SWAP -->
     
             <div id="sendETHFields" style="display:none;" class="bg-white p-6 rounded-lg shadow-md mt-6">
               <h2 class="text-2xl font-semibold text-gray-800 mb-4">Enviar ETH</h2>
@@ -50,9 +51,250 @@
 
           let provider, signer, address, contract;
 
-          const TOKEN_ADDRESS = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8";
+          const TOKEN_A_ADDRESS = "0x64E2F2eF3D0bC3AeF15740A440c3A01FD327f005";
+          const TOKEN_B_ADDRESS = "0xf3C2001d0eDB44b5F02a6423EBF92d8cd07A11ab";
+          const SIMPLEDEX_ADDRESS = "0x23C43302d66D3856AA329aD5C530ec4a25589f4a";
+          const SIMPLEDEX_ABI = [
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_tokenA",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_tokenB",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountTkA",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountTk",
+        "type": "uint256"
+      }
+    ],
+    "name": "LiquidityAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountTkA",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountTkB",
+        "type": "uint256"
+      }
+    ],
+    "name": "LiquidityRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountTkA",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountTkB",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokensSwapped",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountA",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountB",
+        "type": "uint256"
+      }
+    ],
+    "name": "addLiquidity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      }
+    ],
+    "name": "getPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "liquidityA",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "liquidityB",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountA",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountB",
+        "type": "uint256"
+      }
+    ],
+    "name": "removeLiquidity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountAIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "swapAforB",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountBIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "swapBforA",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tokenA",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tokenB",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
 
-          async function loadABI() {
+          async function loadTokenABI() {
             const response = await fetch('https://gist.githubusercontent.com/veox/8800debbf56e24718f9f483e1e40c35c/raw/f853187315486225002ba56e5283c1dba0556e6f/erc20.abi.json');
             const abi = await response.json();
             return abi;
@@ -73,20 +315,22 @@
               const balance = await provider.getBalance(address)
               const formattedBalance = ethers.formatEther(balance);
 
-              const abi = await loadABI();
+              const abi = await loadTokenABI();
 
-              contract = new ethers.Contract(TOKEN_ADDRESS, abi, signer);
+              contract = new ethers.Contract(SIMPLEDEX_ADDRESS, SIMPLEDEX_ABI, signer);
 
-              const decimals = await contract.decimals();
-              const tokenBalance = await contract.balanceOf(address);
-              const formattedTokenBalance = ethers.formatUnits(tokenBalance, decimals);
-              console.log("🚀 ~ connectWallet ~ formattedTokenBalance:", formattedTokenBalance)
+              // const decimals = await contract.decimals();
+              // const tokenBalance = await contract.balanceOf(address);
+              // const formattedTokenBalance = ethers.formatUnits(tokenBalance, decimals);
+              // console.log("🚀 ~ connectWallet ~ formattedTokenBalance:", formattedTokenBalance)
 
               document.getElementById('btnConnect').style.display = 'none';
               document.getElementById('btnDisconnect').style.display = 'inline';
+              document.getElementById('msg_connect').style.display = 'none';
 
               document.getElementById('status').innerText = `Estado: Conectado a la cuenta ${address}`;
-              document.getElementById('erc20Balance').style.display = 'block';
+              document.getElementById('TokenAPrice').style.display = 'block';
+              document.getElementById('TokenBPrice').style.display = 'block';
               document.getElementById('ethBalance').style.display = 'block';
               document.getElementById('sendERC20Fields').style.display = 'block';
               document.getElementById('sendETHFields').style.display = 'block';
@@ -109,8 +353,8 @@
             document.getElementById('btnDisconnect').style.display = 'none';   
             document.getElementById('sendERC20Fields').style.display = 'none';
             document.getElementById('sendETHFields').style.display = 'none';   
-            document.getElementById('erc20Balance').style.display = 'none';
-            document.getElementById('ethBalance').style.display = 'none';                              
+            document.getElementById('TokenAPrice').style.display = 'none';
+            document.getElementById('TokenBPrice').style.display = 'none';                             
           }
 
           async function sendETH() {
