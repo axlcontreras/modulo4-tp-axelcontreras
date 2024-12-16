@@ -2,7 +2,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Ethers App</title>
+        <title>Simple Dex</title>
         <script src="https://cdn.tailwindcss.com"></script>        
     </head>
     <body class="bg-gray-100 font-sans">
@@ -16,8 +16,10 @@
             <p id="status" class="text-center text-gray-600 mt-4">Estado: Desconectado</p>
             
             <!-- Mostrar precios de los token A/B-->
-            <p id="tokenAPrice" style="display: none;" class="text-center text-xl text-gray-800 mt-6">Precio del Token A: 0</p>
-            <p id="tokenBPrice" style="display: none;" class="text-center text-xl text-gray-800 mt-6">Precio del Token B: 0</p>
+             <div id="pricesContainer" style="display: none;" class="bg-white p-6 rounded-lg shadow-md mt-6">
+                  <h4 id="tokenAPrice" class="text-center text-xl text-gray-800 mt-6">Precio del Token A: 0</h4>
+                  <h4 id="tokenBPrice" class="text-center text-xl text-gray-800 mt-6">Precio del Token B: 0</h4>
+              </div>
 
             
             <!-- Formularios para hacer SWAP -->
@@ -76,7 +78,7 @@
         <script type="module">
           import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js";
 
-          let provider, signer, address, contract;
+          let provider, signer, address, contract, simpleDex;
 
           const TOKEN_A_ADDRESS = "0x64E2F2eF3D0bC3AeF15740A440c3A01FD327f005";
           const TOKEN_B_ADDRESS = "0xf3C2001d0eDB44b5F02a6423EBF92d8cd07A11ab";
@@ -346,7 +348,15 @@
 
               const abi = await loadTokenABI();
 
-              contract = new ethers.Contract(SIMPLEDEX_ADDRESS, SIMPLEDEX_ABI, signer);
+              simpleDex = new ethers.Contract(SIMPLEDEX_ADDRESS, SIMPLEDEX_ABI, signer);
+
+              const tokenAprice = await simpleDex.getPrice(TOKEN_A_ADDRESS);
+              const formattedTokenAprice = ethers.formatUnits(tokenAprice, 0);
+              const tokenBprice = await simpleDex.getPrice(TOKEN_B_ADDRESS);
+              const formattedTokenBprice = ethers.formatUnits(tokenBprice, 0);
+
+              console.log(formattedTokenAprice, formattedTokenBprice)
+
 
               // const decimals = await contract.decimals();
               // const tokenBalance = await contract.balanceOf(address);
@@ -358,9 +368,11 @@
               document.getElementById('msg_connect').style.display = 'none';
 
               document.getElementById('status').innerText = `Estado: Conectado a la cuenta ${address}`;
-              // document.getElementById('TokenAPrice').style.display = 'block';
-              // document.getElementById('TokenBPrice').style.display = 'block';
-              // document.getElementById('ethBalance').style.display = 'block';
+              document.getElementById("pricesContainer").innerHTML = `
+                  <h4 id="tokenAPrice" class="text-center text-xl text-gray-800 mt-6">Precio del Token A: ${formattedTokenAprice}</h4>
+                  <h4 id="tokenBPrice" class="text-center text-xl text-gray-800 mt-6">Precio del Token B: ${formattedTokenBprice}</h4>
+              `
+              document.getElementById("pricesContainer").style.display = "block";
               document.getElementById("addLiquidityTKA").style.display = 'block';
               document.getElementById("addLiquidityTKB").style.display = 'block';
               document.getElementById("swapAforB").style.display = "block";
@@ -376,6 +388,7 @@
             signer = null;
             address = null;
             
+            document.getElementById("pricesContainer").style.display = "none";
             document.getElementById("addLiquidityTKA").style.display = 'none';
             document.getElementById("addLiquidityTKB").style.display = 'none';
             document.getElementById("swapAforB").style.display = "none";
@@ -389,9 +402,9 @@
             // document.getElementById('TokenBPrice').style.display = 'none';   
           }
 
-          async function getTokenBalance(address) {
+          async function getTokenBalance(contract_address, token_address) {
               // Dirección del contrato 
-              const tokenAddress = TOKEN_A_ADDRESS; // Sustituir con la dirección del contrato del token
+              const tokenAddress = token_address; // Sustituir con la dirección del contrato del token
 
               // Crea una instancia del contrato ERC-20
               const abi = await loadTokenABI();
@@ -399,44 +412,10 @@
               const tokenContract = new ethers.Contract(tokenAddress, abi, provider);
 
               // Llamada a balanceOf
-              const balance = await tokenContract.balanceOf(address);
+              const balance = await tokenContract.balanceOf(contract_address);
 
               // Muestra el balance (en formato de tokens)
               document.getElementById("balance").textContent = "Balance: " + ethers.formatUnits(balance, 18);
-          }
-
-          async function sendETH() {
-            const recipientAddress = document.getElementById('ethRecipientAddress').value;
-            const amount = document.getElementById('ethAmount').value;
-
-            if(!ethers.isAddress(recipientAddress)) {
-              alert('Dirección de destinatario inválida');
-              return;
-            }
-
-            if(isNaN(amount) || amount <= 0) {
-              alert('Monto inválido');
-              return;
-            }
-
-            try {
-              const tx = {
-                to: recipientAddress,
-                value: ethers.parseEther(amount)
-              };
-
-              const txResponse = await signer.sendTransaction(tx);
-
-              await txResponse.wait();
-
-              console.log("🚀 ~ sendETH ~ txResponse", txResponse)
-              alert(`Transacción enviada con éxito: ${txResponse.hash}`);
-
-            } catch (error) {
-              console.error('Error sending ETH', error);
-              alert('Error enviando ETH');
-            }
-
           }
 
           async function sendToken() {
@@ -476,8 +455,7 @@
           
           document.getElementById('btnConnect').addEventListener('click', connectWallet);
           document.getElementById('btnDisconnect').addEventListener('click', disconnectWallet);
-          document.getElementById('btnSendETH').addEventListener('click', sendETH);
-          document.getElementById('btnSendERC20').addEventListener('click', sendToken);
+          // document.getElementById('btnSendERC20').addEventListener('click', sendToken);
         </script>
 
     </body>
